@@ -1,30 +1,22 @@
 package voatest
 
-trait Item {
-  // price in pence
-  def price: Int
-}
-
-object Item {
-  def unapply(s: String): Option[Item] = {
-    s.toLowerCase match {
-      case "apple" => Some(Apple)
-      case "orange" => Some(Orange)
-      case _ => None
-    }
-  }
-}
-
-case object Apple extends Item {
-  override def price: Int = 60
-}
-
-case object Orange extends Item {
-  override def price: Int = 25
-}
-
 object Checkout {
-  def total(items: Seq[Item]): Int = items.map(_.price).sum
+  def total(items: Seq[Item]): Int = {
+    val itemCounts = items.groupBy(identity).map { case (k, v) => (k, v.length) }
+
+    val totals = itemCounts.map { case (item, count) =>
+      item match {
+        case Apple => item.price * twoForOne(count)
+        case Orange => item.price * threeForTwo(count)
+      }
+    }
+
+    totals.sum
+  }
+
+  def twoForOne(i: Int): Int = i / 2 + i % 2
+
+  def threeForTwo(i: Int): Int = (i / 3) * 2 + i % 3
 
   def main(args: Array[String]) {
     parseItems(args) match {
